@@ -1,1 +1,1 @@
-# TODO
+# TODO: implement SQLite event storage
