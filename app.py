@@ -1,25 +1,68 @@
-import re
+from flask import Flask, request
+from database import get_all_events, search_events
 
-SUSPICIOUS_PATTERNS = [
-    ("FAILED_LOGIN", r"Failed login"),
-    ("UNAUTHORIZED_ACCESS", r"Unauthorized access"),
-    ("WP_LOGIN_SCAN", r"/wp-login\.php"),
-    ("PHPMYADMIN_SCAN", r"/phpmyadmin"),
-    ("ADMIN_SCAN", r"/admin"),
-]
+app = Flask(__name__)
 
-IP_REGEX = r"(?:\d{1,3}\.){3}\d{1,3}"
+@app.route("/")
+def home():
+    query = request.args.get("q", "").strip()
 
-def extract_ip(line):
-    match = re.search(IP_REGEX, line)
-    return match.group(0) if match else "UNKNOWN"
+    if query:
+        events = search_events(query)
+    else:
+        events = get_all_events()
 
-def analyze_line(line):
-    for event_type, pattern in SUSPICIOUS_PATTERNS:
-        if re.search(pattern, line, re.IGNORECASE):
-            return {
-                "event_type": event_type,
-                "source_ip": extract_ip(line),
-                "message": line.strip()
-            }
-    return None
+    html = """
+    <html>
+    <head>
+        <title>LogSentinel</title>
+        <style>
+            body { font-family: Arial; margin: 40px; background: #f7f7f7; }
+            h1 { color: #222; }
+            table { width: 100%; border-collapse: collapse; background: white; }
+            th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+            th { background: #333; color: white; }
+            form { margin-bottom: 20px; }
+            input[type=text] { padding: 8px; width: 300px; }
+            button { padding: 8px 12px; }
+        </style>
+    </head>
+    <body>
+        <h1>LogSentinel Dashboard</h1>
+        <form method="get">
+            <input type="text" name="q" placeholder="Buscar IP, evento o texto..." value="{query}">
+            <button type="submit">Buscar</button>
+        </form>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Timestamp</th>
+                <th>Severity</th>
+                <th>Source IP</th>
+                <th>Event Type</th>
+                <th>Message</th>
+            </tr>
+    """.format(query=query)
+
+    for event in events:
+        html += f"""
+        <tr>
+            <td>{event[0]}</td>
+            <td>{event[1]}</td>
+            <td>{event[2]}</td>
+            <td>{event[3]}</td>
+            <td>{event[4]}</td>
+            <td>{event[5]}</td>
+        </tr>
+        """
+
+    html += """
+        </table>
+    </body>
+    </html>
+    """
+
+    return html
+
+if __name__ == "__main__":
+    app.run(debug=True)
