@@ -6,6 +6,7 @@ Lightweight security monitoring tool for server logs and suspicious activity det
 - Parse server logs
 - Detect suspicious activity patterns
 - Store events in SQLite
+- De-duplicate events using log-line fingerprints
 - Search events by IP, event type, or keyword
 - Simple web dashboard (Flask)
 
@@ -16,19 +17,39 @@ Lightweight security monitoring tool for server logs and suspicious activity det
 
 ## Detected Events
 - Failed login attempts
-- Unauthorized access attempts
-- /admin scans
-- /wp-login.php scans
-- /phpmyadmin scans
+- Unauthorized access attempts to `/admin`
+- `/wp-login.php` scans
+- `/phpmyadmin` scans
+
+## Quick Start
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python collector.py
+python app.py
+```
+
+Then open `http://127.0.0.1:5000`.
+
+## Run Tests
+```bash
+python -m unittest discover -s tests -p "test_*.py"
+```
+
+## Current Status
+- ✅ Log parser working (`collector.py`)
+- ✅ Suspicious pattern analyzer working (`analyzer.py`)
+- ✅ SQLite persistence working (`database.py`)
+- ✅ Duplicate event prevention by fingerprint (`database.py` + `collector.py`)
+- ✅ Unit tests for analyzer and database (`tests/`)
+- ✅ Flask dashboard with search working (`app.py`)
+
+## How to Continue (Suggested Next Steps)
+1. Add event stats in dashboard (top IPs, events by severity, events by type).
+2. Add a REST API (`/api/events`) for external integrations.
+3. Prepare deployment with Docker + `gunicorn`.
+4. Add alerting integrations (email, Slack, webhook).
 
 ## Project Goal
 Educational and defensive security monitoring for small teams and server administrators.
-
-## Roadmap
-- [x] Create GitHub repository
-- [ ] Build log parser
-- [ ] Detect suspicious patterns
-- [ ] Store events in SQLite
-- [ ] Build Flask dashboard
-- [ ] Add filters and event stats
-- [ ] Deploy MVP
