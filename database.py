@@ -21,11 +21,16 @@ def init_db():
         """
     )
 
+    # Si la tabla ya existía de antes sin fingerprint, la agregamos
     cur.execute("PRAGMA table_info(events)")
     columns = [row[1] for row in cur.fetchall()]
+
     if "fingerprint" not in columns:
         cur.execute("ALTER TABLE events ADD COLUMN fingerprint TEXT")
-        cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_events_fingerprint ON events(fingerprint)")
+
+    cur.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_events_fingerprint ON events(fingerprint)"
+    )
 
     conn.commit()
     conn.close()
@@ -51,9 +56,15 @@ def get_all_events():
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
 
-    cur.execute("SELECT id, timestamp, severity, source_ip, event_type, message FROM events ORDER BY id DESC")
-    rows = cur.fetchall()
+    cur.execute(
+        """
+        SELECT id, timestamp, severity, source_ip, event_type, message
+        FROM events
+        ORDER BY id DESC
+        """
+    )
 
+    rows = cur.fetchall()
     conn.close()
     return rows
 
@@ -64,7 +75,8 @@ def search_events(keyword):
 
     cur.execute(
         """
-        SELECT id, timestamp, severity, source_ip, event_type, message FROM events
+        SELECT id, timestamp, severity, source_ip, event_type, message
+        FROM events
         WHERE message LIKE ? OR source_ip LIKE ? OR event_type LIKE ?
         ORDER BY id DESC
         """,
