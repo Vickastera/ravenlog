@@ -5,7 +5,7 @@ from analyzer import analyze_line
 from database import init_db, save_event
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_FILE = os.path.join(BASE_DIR, "sample_logs", "sample_logs", "server.log")
+LOG_FILE = os.path.join(BASE_DIR, "sample_logs", "server.log")
 
 
 def extract_timestamp(line):
@@ -18,9 +18,10 @@ def extract_timestamp(line):
 def extract_severity(line):
     if "ERROR" in line:
         return "ERROR"
-    if "WARNING" in line:
+    elif "WARNING" in line:
         return "WARNING"
-    return "INFO"
+    else:
+        return "INFO"
 
 
 def build_fingerprint(line):
@@ -30,9 +31,14 @@ def build_fingerprint(line):
 def process_logs():
     init_db()
 
-    with open(LOG_FILE, "r", encoding="utf-8") as f:
-        for line in f:
+    if not os.path.exists(LOG_FILE):
+        print(f"[ERROR] Log file not found: {LOG_FILE}")
+        return
+
+    with open(LOG_FILE, "r", encoding="utf-8") as file:
+        for line in file:
             result = analyze_line(line)
+
             if result:
                 timestamp = extract_timestamp(line)
                 severity = extract_severity(line)
