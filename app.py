@@ -1,5 +1,5 @@
 from collections import Counter
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from database import get_all_events, search_events
 
 app = Flask(__name__)
@@ -23,6 +23,39 @@ def summarize_events(events):
         "total_events": len(events),
         "event_type_counts": dict(event_type_counts),
         "top_source_ips": source_ip_counts.most_common(5),
+    }
+
+
+def build_event_type_html(event_type_counts):
+    if not event_type_counts:
+        return '<p class="empty">No events to summarize.</p>'
+
+    html = "<ul>"
+    for event_type, count in event_type_counts.items():
+        html += f"<li><strong>{event_type}</strong>: {count}</li>"
+    html += "</ul>"
+    return html
+
+
+def build_top_ips_html(top_source_ips):
+    if not top_source_ips:
+        return '<p class="empty">No source IPs to display.</p>'
+
+    html = "<ul>"
+    for ip, count in top_source_ips:
+        html += f"<li><strong>{ip}</strong>: {count} events</li>"
+    html += "</ul>"
+    return html
+
+
+def event_to_dict(event):
+    return {
+        "id": event[0],
+        "timestamp": event[1],
+        "severity": event[2],
+        "source_ip": event[3],
+        "event_type": event[4],
+        "message": event[5],
     }
 
 
@@ -68,6 +101,10 @@ def home():
                 color: #666;
                 font-style: italic;
             }
+            .api-link {
+                margin-top: 10px;
+                display: inline-block;
+            }
         </style>
     </head>
     <body>
@@ -76,6 +113,10 @@ def home():
             <input type="text" name="q" placeholder="Buscar IP, evento o texto..." value="{query}">
             <button type="submit">Buscar</button>
         </form>
+
+        <p class="api-link">
+            <a href="/api/events">View JSON API</a>
+        </p>
 
         <div class="stats-box">
             <div class="stats-section">
@@ -131,26 +172,16 @@ def home():
     return html
 
 
-def build_event_type_html(event_type_counts):
-    if not event_type_counts:
-        return '<p class="empty">No events to summarize.</p>'
+@app.route("/api/events")
+def api_events():
+    query = request.args.get("q", "").strip()
 
-    html = "<ul>"
-    for event_type, count in event_type_counts.items():
-        html += f"<li><strong>{event_type}</strong>: {count}</li>"
-    html += "</ul>"
-    return html
+    if query:
+        events = search_events(query)
+    else:
+        events = get_all_events()
 
-
-def build_top_ips_html(top_source_ips):
-    if not top_source_ips:
-        return '<p class="empty">No source IPs to display.</p>'
-
-    html = "<ul>"
-    for ip, count in top_source_ips:
-        html += f"<li><strong>{ip}</strong>: {count} events</li>"
-    html += "</ul>"
-    return html
+    return jsonify([event_to_dict(event) for event in events])
 
 
 if __name__ == "__main__":
