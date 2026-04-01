@@ -1,50 +1,61 @@
-# LogSentinel
+# 🛡️ LogSentinel
 
-LogSentinel is a lightweight defensive security monitoring project built with Python, Flask, and SQLite.
+LogSentinel is a lightweight security log monitoring tool built with Python, Flask, and SQLite.
+It parses server logs, detects suspicious activity, stores normalized events, and exposes both a web dashboard and a JSON API for investigation.
 
-It parses server logs, detects suspicious activity patterns, stores normalized events, and exposes both a web dashboard and a JSON API for investigation.
+![Dashboard](dashboard-preview.png)
 
 ---
 
 ## Features
 
-- Parse server logs
-- Detect suspicious activity patterns
-- Store events in SQLite
-- De-duplicate events using log-line fingerprints
-- Search events by IP, event type, or keyword
-- Simple Flask web dashboard
-- Dashboard summary statistics
-- JSON API endpoint for events
+- Parse server log files
+- Detect suspicious events:
+  - Multiple failed login attempts
+  - Unauthorized access attempts to `/admin`
+  - `/wp-login.php` scans
+  - `/phpmyadmin` scans
+- Store detected events in SQLite with deduplication
+- Web dashboard for viewing and searching events
+- JSON API endpoint for programmatic access
+- Event summary: total events, count by type, top source IPs
+- Search by IP address, event type, or message text
 
 ---
 
-## Detected Events
+## Tech Stack
 
-LogSentinel currently detects:
-
-- Failed login attempts
-- Unauthorized access attempts to `/admin`
-- `/wp-login.php` scans
-- `/phpmyadmin` scans
-
----
-
-## Project Structure
-
-- `collector.py` → reads and processes log lines
-- `analyzer.py` → detects suspicious patterns and normalizes events
-- `database.py` → handles SQLite persistence and search
-- `app.py` → Flask dashboard + JSON API
-- `tests/` → unit tests
+Python · Flask · SQLite · HTML/CSS
 
 ---
 
 ## Quick Start
-
 ```bash
+git clone https://github.com/Vickastera/logsentinel.git
+cd logsentinel
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python collector.py
 python app.py
+```
+
+Then open http://localhost:5000 in your browser.
+
+---
+
+## API
+```
+GET /api/events           → returns all events
+GET /api/events?q=keyword → filter by IP, event type or message
+```
+
+---
+
+## Project Structure
+
+- `app.py` → Flask dashboard + JSON API
+- `analyzer.py` → detects suspicious patterns
+- `collector.py` → reads and processes log files
+- `database.py` → SQLite persistence and search
+- `tests/` → unit tests
