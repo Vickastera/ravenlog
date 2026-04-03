@@ -3,6 +3,8 @@
 LogSentinel is a lightweight security log monitoring tool built with Python, Flask, and SQLite.
 It parses server logs, detects suspicious activity, stores normalized events, and exposes both a web dashboard and a JSON API for investigation.
 
+🌐 **Live demo:** https://logsentinel-bm52.onrender.com
+
 ![Dashboard](dashboard-preview.png)
 
 ---
