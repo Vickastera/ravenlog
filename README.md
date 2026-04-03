@@ -1,6 +1,6 @@
-# 🛡️ LogSentinel
+# 🐦‍⬛ RavenLog
 
-LogSentinel is a lightweight security log monitoring tool built with Python, Flask, and SQLite.
+RavenLog is a lightweight security log monitoring tool built with Python, Flask, and SQLite.
 It parses server logs, detects suspicious activity, stores normalized events, and exposes both a web dashboard and a JSON API for investigation.
 
 🌐 **Live demo:** https://logsentinel-bm52.onrender.com
@@ -33,8 +33,8 @@ Python · Flask · SQLite · HTML/CSS
 
 ## Quick Start
 ```bash
-git clone https://github.com/Vickastera/logsentinel.git
-cd logsentinel
+git clone https://github.com/Vickastera/ravenlog.git
+cd ravenlog
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
