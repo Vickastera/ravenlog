@@ -33,15 +33,16 @@ def summarize_events(events):
 
 @app.route("/")
 def home():
-query = request.args.get("q", "").strip()
-severity_filter = request.args.get("severity", "").strip().upper()
-  if query:
-    events = search_events(query)
-else:
-    events = get_all_events()
+    query = request.args.get("q", "").strip()
+    severity_filter = request.args.get("severity", "").strip().upper()
 
-if severity_filter:
-    events = [e for e in events if e[2] == severity_filter]
+    if query:
+        events = search_events(query)
+    else:
+        events = get_all_events()
+
+    if severity_filter:
+        events = [e for e in events if e[2] == severity_filter]
 
     stats = summarize_events(events)
 
@@ -93,10 +94,14 @@ if severity_filter:
         </tr>
         """
 
+    selected_error = "selected" if severity_filter == "ERROR" else ""
+    selected_warning = "selected" if severity_filter == "WARNING" else ""
+    selected_info = "selected" if severity_filter == "INFO" else ""
+
     html = """
     <html>
     <head>
-        <title>LogSentinel</title>
+        <title>RavenLog</title>
         <style>
             * {
                 box-sizing: border-box;
@@ -169,6 +174,18 @@ if severity_filter:
 
             .search-input::placeholder {
                 color: #64748b;
+            }
+
+            .severity-select {
+                flex: 0;
+                min-width: 160px;
+                padding: 12px 14px;
+                border-radius: 10px;
+                border: 1px solid #334155;
+                background: #0b1220;
+                color: #e5e7eb;
+                outline: none;
+                cursor: pointer;
             }
 
             .search-btn {
@@ -312,7 +329,7 @@ if severity_filter:
         <div class="container">
             <div class="header">
                 <div>
-                    <h1 class="title">&#x1F6E1;&#xFE0F; LogSentinel</h1>
+                    <h1 class="title">🐦 RavenLog</h1>
                     <p class="subtitle">Security log monitoring dashboard with SQLite + Flask API</p>
                 </div>
             </div>
@@ -326,12 +343,13 @@ if severity_filter:
                         placeholder="Search by IP, event type, or message..."
                         value="{{ query }}"
                     >
-                  <select name="severity" class="search-input" style="flex: 0; min-width: 140px;">
-    <option value="">All severities</option>
-    <option value="ERROR" {"selected" if severity_filter == "ERROR" else ""}>ERROR</option>
-    <option value="WARNING" {"selected" if severity_filter == "WARNING" else ""}>WARNING</option>
-    <option value="INFO" {"selected" if severity_filter == "INFO" else ""}>INFO</option>
-</select>
+                    <select name="severity" class="severity-select">
+                        <option value="">All severities</option>
+                        <option value="ERROR" {{ selected_error }}>ERROR</option>
+                        <option value="WARNING" {{ selected_warning }}>WARNING</option>
+                        <option value="INFO" {{ selected_info }}>INFO</option>
+                    </select>
+                    <button class="search-btn" type="submit">Search</button>
                 </form>
             </div>
 
@@ -368,12 +386,12 @@ if severity_filter:
             </div>
 
             <p class="footer-note">
-                Tip: Try searches like <strong>failed_login</strong>, <strong>admin_probe</strong>, or an IP such as <strong>185.23.44.12</strong>.
+                Tip: Try searches like <strong>failed_login</strong>, <strong>sql_injection</strong>, or an IP such as <strong>185.23.44.12</strong>.
             </p>
         </div>
     </body>
     </html>
-    """.replace("{{ query }}", query).replace("{{ total_events }}", str(stats["total_events"])).replace("{{ event_type_html }}", event_type_html).replace("{{ top_ips_html }}", top_ips_html).replace("{{ rows_html }}", rows_html)
+    """.replace("{{ query }}", query).replace("{{ total_events }}", str(stats["total_events"])).replace("{{ event_type_html }}", event_type_html).replace("{{ top_ips_html }}", top_ips_html).replace("{{ rows_html }}", rows_html).replace("{{ selected_error }}", selected_error).replace("{{ selected_warning }}", selected_warning).replace("{{ selected_info }}", selected_info)
 
     return html
 
