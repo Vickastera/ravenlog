@@ -1,10 +1,91 @@
+import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
 from flask import Flask, request, jsonify
 from database import get_all_events, search_events, init_db
 from collector import process_logs
 
 app = Flask(__name__)
 init_db()
-process_logs()
+
+MAIL_USER = os.environ.get("MAIL_USER", "")
+MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD", "")
+
+
+def send_alert_email(event_type, source_ip, message):
+    if not MAIL_USER or not MAIL_PASSWORD:
+        return
+
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = MAIL_USER
+        msg["To"] = MAIL_USER
+        msg["Subject"] = f"🐦 RavenLog Alert: {event_type} detected"
+
+        body = f"""
+RavenLog detected a suspicious event:
+
+Event Type: {event_type}
+Source IP:  {source_ip}
+Message:    {message}
+
+Check your dashboard: https://logsentinel-bm52.onrender.com
+        """
+
+        msg.attach(MIMEText(body, "plain"))
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(MAIL_USER, MAIL_PASSWORD)
+            server.sendmail(MAIL_USER, MAIL_USER, msg.as_string())
+
+    except Exception as e:
+        print(f"[EMAIL ERROR] {e}")
+
+
+def run_collector_with_alerts():
+    from analyzer import analyze_line
+    from database import save_event
+    import hashlib
+
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    LOG_FILE = os.path.join(BASE_DIR, "sample_logs", "server.log")
+
+    if not os.path.exists(LOG_FILE):
+        print(f"[ERROR] Log file not found: {LOG_FILE}")
+        return
+
+    with open(LOG_FILE, "r", encoding="utf-8") as file:
+        for line in file:
+            result = analyze_line(line)
+
+            if result:
+                parts = line.split(" ", 2)
+                timestamp = f"{parts[0]} {parts[1]}" if len(parts) >= 2 else "UNKNOWN"
+                severity = "ERROR" if "ERROR" in line else "WARNING" if "WARNING" in line else "INFO"
+                fingerprint = hashlib.sha256(line.strip().encode("utf-8")).hexdigest()
+
+                saved = save_event(
+                    timestamp=timestamp,
+                    severity=severity,
+                    source_ip=result["source_ip"],
+                    event_type=result["event_type"],
+                    message=result["message"],
+                    fingerprint=fingerprint,
+                )
+
+                if saved:
+                    send_alert_email(
+                        event_type=result["event_type"],
+                        source_ip=result["source_ip"],
+                        message=result["message"],
+                    )
+
+                print(f"[ALERTA] {result['event_type']} | {result['source_ip']} | {result['message']}")
+
+
+run_collector_with_alerts()
 
 
 def summarize_events(events):
