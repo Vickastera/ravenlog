@@ -35,6 +35,8 @@ def summarize_events(events):
 def home():
     query = request.args.get("q", "").strip()
     severity_filter = request.args.get("severity", "").strip().upper()
+    date_from = request.args.get("date_from", "").strip()
+    date_to = request.args.get("date_to", "").strip()
 
     if query:
         events = search_events(query)
@@ -43,6 +45,12 @@ def home():
 
     if severity_filter:
         events = [e for e in events if e[2] == severity_filter]
+
+    if date_from:
+        events = [e for e in events if e[1] and e[1] >= date_from]
+
+    if date_to:
+        events = [e for e in events if e[1] and e[1] <= date_to + " 23:59:59"]
 
     stats = summarize_events(events)
 
@@ -186,6 +194,25 @@ def home():
                 color: #e5e7eb;
                 outline: none;
                 cursor: pointer;
+            }
+
+            .date-input {
+                flex: 0;
+                min-width: 160px;
+                padding: 12px 14px;
+                border-radius: 10px;
+                border: 1px solid #334155;
+                background: #0b1220;
+                color: #e5e7eb;
+                outline: none;
+            }
+
+            .date-label {
+                color: #94a3b8;
+                font-size: 13px;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
             }
 
             .search-btn {
@@ -349,6 +376,14 @@ def home():
                         <option value="WARNING" {{ selected_warning }}>WARNING</option>
                         <option value="INFO" {{ selected_info }}>INFO</option>
                     </select>
+                    <label class="date-label">
+                        From
+                        <input type="date" name="date_from" class="date-input" value="{{ date_from }}">
+                    </label>
+                    <label class="date-label">
+                        To
+                        <input type="date" name="date_to" class="date-input" value="{{ date_to }}">
+                    </label>
                     <button class="search-btn" type="submit">Search</button>
                 </form>
             </div>
@@ -391,7 +426,7 @@ def home():
         </div>
     </body>
     </html>
-    """.replace("{{ query }}", query).replace("{{ total_events }}", str(stats["total_events"])).replace("{{ event_type_html }}", event_type_html).replace("{{ top_ips_html }}", top_ips_html).replace("{{ rows_html }}", rows_html).replace("{{ selected_error }}", selected_error).replace("{{ selected_warning }}", selected_warning).replace("{{ selected_info }}", selected_info)
+    """.replace("{{ query }}", query).replace("{{ total_events }}", str(stats["total_events"])).replace("{{ event_type_html }}", event_type_html).replace("{{ top_ips_html }}", top_ips_html).replace("{{ rows_html }}", rows_html).replace("{{ selected_error }}", selected_error).replace("{{ selected_warning }}", selected_warning).replace("{{ selected_info }}", selected_info).replace("{{ date_from }}", date_from).replace("{{ date_to }}", date_to)
 
     return html
 
