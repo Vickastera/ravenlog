@@ -326,7 +326,12 @@ if severity_filter:
                         placeholder="Search by IP, event type, or message..."
                         value="{{ query }}"
                     >
-                    <button class="search-btn" type="submit">Search</button>
+                  <select name="severity" class="search-input" style="flex: 0; min-width: 140px;">
+    <option value="">All severities</option>
+    <option value="ERROR" {"selected" if severity_filter == "ERROR" else ""}>ERROR</option>
+    <option value="WARNING" {"selected" if severity_filter == "WARNING" else ""}>WARNING</option>
+    <option value="INFO" {"selected" if severity_filter == "INFO" else ""}>INFO</option>
+</select>
                 </form>
             </div>
 
