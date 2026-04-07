@@ -1,6 +1,7 @@
 import os
 import smtplib
 import hashlib
+import socket
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -38,7 +39,25 @@ Check your dashboard: https://logsentinel-bm52.onrender.com
 
         msg.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=20) as server:
+        # Force IPv4 for smtp.gmail.com (Render can fail with IPv6 route)
+        smtp_host = "smtp.gmail.com"
+        smtp_port = 587
+
+        addr_info = socket.getaddrinfo(
+            smtp_host,
+            smtp_port,
+            socket.AF_INET,
+            socket.SOCK_STREAM
+        )
+
+        if not addr_info:
+            raise Exception("Could not resolve IPv4 address for smtp.gmail.com")
+
+        family, socktype, proto, canonname, sockaddr = addr_info[0]
+        smtp_ip = sockaddr[0]
+
+        with smtplib.SMTP(timeout=20) as server:
+            server.connect(smtp_ip, smtp_port)
             server.ehlo()
             server.starttls()
             server.ehlo()
