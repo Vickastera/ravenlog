@@ -1,9 +1,8 @@
 # 🐦‍⬛ RavenLog
 
-RavenLog is a lightweight security log monitoring tool built with Python, Flask, and SQLite.
-It parses server logs, detects suspicious activity, stores normalized events, and exposes both a web dashboard and a JSON API for investigation.
+RavenLog is a personal portfolio project — a lightweight security log monitoring tool built with Python, Flask, and SQLite. It parses server logs, detects suspicious activity, stores normalized events, and exposes both a web dashboard and a JSON API for investigation.
 
-🌐 **Live demo (temporary URL):** https://logsentinel-bm52.onrender.com
+🌐 **Live demo:** https://ravenlog.onrender.com *(URL subject to change — free tier)*
 
 ![Dashboard](dashboard-preview.png)
 
