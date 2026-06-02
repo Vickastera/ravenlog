@@ -4,9 +4,7 @@ RavenLog is a personal portfolio project — a lightweight security log monitori
 
 🌐 Live demo: https://logsentinel-bm52.onrender.com *(URL subject to change — free tier)*
 
-![Dashboard](dashboard-preview.png)
-
----
+![Dashboard](dashboard-v2.png)
 
 ## Features
 
