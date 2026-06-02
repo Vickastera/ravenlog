@@ -34,7 +34,7 @@ Event Type: {event_type}
 Source IP:  {source_ip}
 Message:    {message}
 
-Check your dashboard: https://logsentinel-bm52.onrender.com
+Check your dashboard: https://ravenlog.onrender.com
         """
 
         msg.attach(MIMEText(body, "plain"))
