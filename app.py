@@ -25,8 +25,7 @@ def send_alert_email(event_type, source_ip, message):
         msg = MIMEMultipart()
         msg["From"] = MAIL_USER
         msg["To"] = MAIL_USER
-        msg["Subject"] = f"🐦 RavenLog Alert: {event_type} detected"
-
+msg["Subject"] = f"🐦‍⬛ RavenLog Alert: {event_type} detected"
         body = f"""
 RavenLog detected a suspicious event:
 
@@ -469,7 +468,7 @@ def home():
         <div class="container">
             <div class="header">
                 <div>
-                    <h1 class="title">🐦 RavenLog</h1>
+                 <h1 class="title">🐦‍⬛ RavenLog</h1>
                     <p class="subtitle">Security log monitoring dashboard with SQLite + Flask API</p>
                 </div>
             </div>
